@@ -49,10 +49,11 @@ def consumir_elemento(elemento):
     # Realiza alguna operación con el elemento
     print(f"Consumidor consume {elemento}")
 
-def detener_con_tecla():
+def detener_programa_con_tecla(e):
     global detener_programa
-    keyboard.read_event(suppress=True)  # Suprimir eventos anteriores
-    keyboard.add_hotkey('y', lambda: setattr(detener_programa, True))
+    if e.event_type == keyboard.KEY_DOWN:
+        if e.name == 'y':
+            detener_programa = True
 
 # Creamos productores y consumidores
 num_productores = 2
@@ -65,7 +66,7 @@ for _ in range(num_consumidores):
     threading.Thread(target=consumidor).start()
 
 # Configuramos la función para detener el programa con la tecla "y"
-detener_con_tecla()
+keyboard.on_press_key('y', detener_programa_con_tecla)
 
 # Esperamos a que se presione la tecla "y" para detener el programa
 while not detener_programa:
