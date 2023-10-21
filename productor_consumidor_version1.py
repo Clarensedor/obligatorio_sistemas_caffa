@@ -1,6 +1,7 @@
 import threading
 import time
 import random
+import tkinter as tk
 import keyboard
 
 N = 5  # Tamaño del búfer
@@ -47,7 +48,27 @@ def quitar_elemento():
 
 def consumir_elemento(elemento):
     # Realiza alguna operación con el elemento
-    print(f"Consumidor consume {elemento}")
+    pass
+
+# Crear y configurar la ventana de la interfaz gráfica
+root = tk.Tk()
+root.title("Productor-Consumidor")
+
+def iniciar_programa():
+    global detener_programa
+    detener_programa = False
+    # Crear hilos para productores y consumidores
+    num_productores = 2
+    num_consumidores = 3
+
+    for _ in range(num_productores):
+        threading.Thread(target=productor).start()
+
+    for _ in range(num_consumidores):
+        threading.Thread(target=consumidor).start()
+
+    # Configuramos la función para detener el programa con la tecla "y"
+    keyboard.on_press_key('y', detener_programa_con_tecla)
 
 def detener_programa_con_tecla(e):
     global detener_programa
@@ -55,21 +76,23 @@ def detener_programa_con_tecla(e):
         if e.name == 'y':
             detener_programa = True
 
-# Creamos productores y consumidores
-num_productores = 2
-num_consumidores = 3
+start_button = tk.Button(root, text="Iniciar Programa", command=iniciar_programa)
+start_button.pack()
 
-for _ in range(num_productores):
-    threading.Thread(target=productor).start()
+stop_button = tk.Button(root, text="Detener Programa", command=detener_programa_con_tecla)
+stop_button.pack()
 
-for _ in range(num_consumidores):
-    threading.Thread(target=consumidor).start()
+output_text = tk.Text(root, height=10, width=50)
+output_text.pack()
 
-# Configuramos la función para detener el programa con la tecla "y"
-keyboard.on_press_key('y', detener_programa_con_tecla)
+def actualizar_interfaz():
+    while not detener_programa:
+        time.sleep(1)
+        output_text.delete(1.0, tk.END)
+        output_text.insert(tk.END, "Búfer: {}\n".format(buffer))
+        output_text.see(tk.END)
 
-# Esperamos a que se presione la tecla "y" para detener el programa
-while not detener_programa:
-    time.sleep(1)
+# Crear un hilo para actualizar la interfaz
+threading.Thread(target=actualizar_interfaz).start()
 
-print("Programa detenido.")
+root.mainloop()
