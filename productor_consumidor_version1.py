@@ -2,7 +2,6 @@ import threading
 import time
 import random
 import tkinter as tk
-import keyboard
 
 N = 5  # Tamaño del búfer
 mutex = threading.Semaphore(1)  # Semáforo para controlar el acceso a la región crítica
@@ -50,10 +49,6 @@ def consumir_elemento(elemento):
     # Realiza alguna operación con el elemento
     pass
 
-# Crear y configurar la ventana de la interfaz gráfica
-root = tk.Tk()
-root.title("Productor-Consumidor")
-
 def iniciar_programa():
     global detener_programa
     detener_programa = False
@@ -67,32 +62,35 @@ def iniciar_programa():
     for _ in range(num_consumidores):
         threading.Thread(target=consumidor).start()
 
-    # Configuramos la función para detener el programa con la tecla "y"
-    keyboard.on_press_key('y', detener_programa_con_tecla)
-
-def detener_programa_con_tecla(e):
+def detener_programa():
     global detener_programa
-    if e.event_type == keyboard.KEY_DOWN:
-        if e.name == 'y':
-            detener_programa = True
+    detener_programa = True
+
+
+# Crear y configurar la ventana de la interfaz gráfica
+root = tk.Tk()
+root.title("Productor-Consumidor")
 
 start_button = tk.Button(root, text="Iniciar Programa", command=iniciar_programa)
 start_button.pack()
 
-stop_button = tk.Button(root, text="Detener Programa", command=detener_programa_con_tecla)
+stop_button = tk.Button(root, text="Detener Programa", command=detener_programa)
 stop_button.pack()
 
 output_text = tk.Text(root, height=10, width=50)
 output_text.pack()
 
+
 def actualizar_interfaz():
-    while not detener_programa:
-        time.sleep(1)
+    if not detener_programa:
         output_text.delete(1.0, tk.END)
         output_text.insert(tk.END, "Búfer: {}\n".format(buffer))
         output_text.see(tk.END)
+    root.after(1000, actualizar_interfaz)  # Programar la próxima actualización después de 1000 ms (1 segundo)
 
 # Crear un hilo para actualizar la interfaz
 threading.Thread(target=actualizar_interfaz).start()
+
+
 
 root.mainloop()
