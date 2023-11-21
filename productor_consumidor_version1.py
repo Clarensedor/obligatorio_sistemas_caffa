@@ -37,13 +37,17 @@ def producir_elemento():
     # Genera un número aleatorio del 1 al 5
     return random.randint(1, 5)
 
+
 def insertar_elemento(elemento):
-    # Inserta un elemento en el búfer
+    global buffer
     buffer.append(elemento)
+    if len(buffer) > N:  # Si el tamaño del búfer excede N, lo hacemos circular
+        buffer = buffer[-N:]
 
 def quitar_elemento():
-    # Saca un elemento del búfer
-    return buffer.pop(0)
+    global buffer
+    elemento = buffer.pop(-1)  # Quitamos el último elemento del búfer
+    return elemento
 
 def consumir_elemento(elemento):
     # Realiza alguna operación con el elemento
